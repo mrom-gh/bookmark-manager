@@ -67,6 +67,6 @@ class QuitCommand:
 
 
 if __name__=='__main__':
-    token = '46e404c6fc5d0faa99f3bf961a7b8a5c94352729'
+    token = ''
     command = ImportGithubStarsCommand()
     print(command.execute(token))
