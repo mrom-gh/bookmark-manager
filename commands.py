@@ -42,8 +42,11 @@ class DeleteBookmarkCommand:
 		return 'Bookmark deleted'
 
 class ImportGithubStarsCommand:
-	def _get_list_of_stars(self, token):
-		headers = {'Authorization': f'token {token}'}
+	def __init__(self, token):
+		self.token = token
+	def _get_list_of_stars(self):
+		headers = {'Authorization': f'token {self.token}'}
+		print(type(headers), headers)
 		response = requests.get('https://api.github.com/user/starred', headers=headers)
 		return response.json()  # [{link 1}, {link 2}, ...]
 	def _get_new_bookmark_data(self, list_of_stars, i):
@@ -52,8 +55,8 @@ class ImportGithubStarsCommand:
 			'url': list_of_stars[i]['html_url'],
 			'notes':list_of_stars[i]['description'],
 		}
-	def execute(self, token):
-		list_of_stars = self._get_list_of_stars(token)
+	def execute(self):
+		list_of_stars = self._get_list_of_stars()
 		r = []
 		for i in range(len(list_of_stars)):
 			data = self._get_new_bookmark_data(list_of_stars, i)
@@ -67,6 +70,7 @@ class QuitCommand:
 
 
 if __name__=='__main__':
-    token = ''
-    command = ImportGithubStarsCommand()
-    print(command.execute(token))
+	with open('token', encoding='utf-8') as infile:
+		token = infile.read().strip()
+	command = ImportGithubStarsCommand(token)
+	print(command.execute())
