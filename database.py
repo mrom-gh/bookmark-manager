@@ -1,3 +1,5 @@
+"""DatabaseManager - Constitutes the persistence layer"""
+
 import sqlite3
 
 
@@ -10,8 +12,8 @@ class DatabaseManager:
 		self.connection.close()
 
 	def _execute(self, statement, values=None):
-		"""Use "with" to create db transaction context to handle errors
-		Use statements with placeholders for values to prevent sql injection
+		"""Use statements with placeholders for values to prevent sql
+		injection.
 		"""
 		with self.connection:
 			cursor = self.connection.cursor()

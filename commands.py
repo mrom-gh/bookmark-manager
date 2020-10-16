@@ -1,3 +1,5 @@
+"""Commands module - Constitutes the business logic"""
+
 import datetime, sys
 import requests
 from database import DatabaseManager

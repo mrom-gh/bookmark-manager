@@ -1,3 +1,6 @@
+"""CLI Bookmark Manager - Uses a SQLite database to store bookmarks. 
+Includes functionality to add, list and delete bookmarks."""
+
 import os
 import commands
 
