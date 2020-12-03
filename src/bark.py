@@ -18,8 +18,7 @@ class Option:
 		if self.prep_call: data = self.prep_call()
 		else: data = None
 	
-		if data: message = self.command.execute(data)
-		else: message = self.command.execute()
+		message = self.command.execute(data)
 		print(message)
 		
 	def __str__(self):

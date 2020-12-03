@@ -1,5 +1,6 @@
 """Commands module - Constitutes the business logic"""
 
+from abc import ABC, abstractmethod
 import datetime, sys
 import requests
 from database import DatabaseManager
@@ -8,8 +9,19 @@ dbm = DatabaseManager('bookmarks.db')
 
 # TODO: Wire ImportGithubStarsCommand with the UI
 
-class CreateBookmarksTableCommand:
-	def execute(self):
+
+class Command(ABC):
+	@abstractmethod
+	def execute(self, data):
+		# Second argument is used only by some subclasses
+		# Second argument is called data if it expects a dict
+		# Second argument may also expect a string or a number
+		# Abstract methods don't enforce the number of arguments!
+		# -> Python doesn't support full interface enforcement
+		raise NotImplementedError("Is a Command and needs to have an execute method.")
+
+class CreateBookmarksTableCommand(Command):
+	def execute(self, data=None):
 		columns = {
 			'id': 'INTEGER PRIMARY KEY AUTOINCREMENT',
 			'title': 'TEXT NOT NULL',
@@ -19,7 +31,7 @@ class CreateBookmarksTableCommand:
 		}
 		dbm.create_table('bookmarks', columns)
 
-class AddBookmarkCommand:
+class AddBookmarkCommand(Command):
 	# data: part of shared interface with DatabaseManager method "add"
 	#       and Options method "choose"
 	def execute(self, data, timestamp=None):
@@ -27,24 +39,26 @@ class AddBookmarkCommand:
 		dbm.add('bookmarks', data)
 		return 'Bookmark added'
 
-class ListBookmarkCommand:
+class ListBookmarkCommand(Command):
 	def __init__(self, order_by='date_added'):
+		# breaks Liscov
 		self.order_by = order_by
-	def execute(self):
+	def execute(self, data=None):
 		selection = dbm.select('bookmarks', order_by=self.order_by)  # cursor
 		selection_formatted = ''
 		for item in selection.fetchall():
 			selection_formatted += str(item) + '\n'
 		return selection_formatted
 
-class DeleteBookmarkCommand:
+class DeleteBookmarkCommand(Command):
 	def execute(self, bookmark_id):
 		criteria = {'id': bookmark_id}
 		dbm.delete('bookmarks', criteria)
 		return 'Bookmark deleted'
 
-class ImportGithubStarsCommand:
+class ImportGithubStarsCommand(Command):
 	def __init__(self, token):
+		# breaks Liscov
 		self.token = token
 	def _get_list_of_stars(self):
 		headers = {'Authorization': f'token {self.token}'}
@@ -57,7 +71,7 @@ class ImportGithubStarsCommand:
 			'url': list_of_stars[i]['html_url'],
 			'notes':list_of_stars[i]['description'],
 		}
-	def execute(self):
+	def execute(self, data=None):
 		list_of_stars = self._get_list_of_stars()
 		r = []
 		for i in range(len(list_of_stars)):
@@ -66,8 +80,8 @@ class ImportGithubStarsCommand:
 			r.append(msg)
 		return ', '.join(r)
 
-class QuitCommand:
-	def execute(self):
+class QuitCommand(Command):
+	def execute(self, data=None):
 		sys.exit()
 
 
